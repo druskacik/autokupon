@@ -38,5 +38,7 @@ def extract_authtoken(email, password):
                     auth_token = value.split(';')[0].split('=')[1]
 
         return auth_token
+    except Exception as e:
+        raise e
     finally:
         driver.quit()

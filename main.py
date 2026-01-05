@@ -1,7 +1,7 @@
 import os
 import requests
 from extract_authtoken import extract_authtoken
-from send_notification import send_promotion_notification
+from send_notification import send_promotion_notification, send_error_notification
 
 from dotenv import load_dotenv
 
