@@ -32,6 +32,8 @@ def extract_authtoken(email, password):
                 if request.response:
                     headers = request.response.headers
 
+        print('headers', headers)
+
         if headers:
             for key, value in headers.items():
                 if key.lower() == 'set-cookie' and value.startswith('authToken='):
