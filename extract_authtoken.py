@@ -4,9 +4,10 @@ from selenium.webdriver.firefox.options import Options
 import time
 
 def extract_authtoken(email, password):
-    options = Options()
-    options.add_argument("--headless")
-    driver = webdriver.Firefox(options=options)
+    # options = Options()
+    # options.add_argument("--headless")
+    # driver = webdriver.Firefox(options=options)
+    driver = webdriver.Firefox()
     try:
         driver.get('https://www.lidl.cz/')
         time.sleep(2)
