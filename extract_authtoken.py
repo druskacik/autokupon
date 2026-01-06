@@ -1,13 +1,26 @@
+import os
 from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 import time
 
 def extract_authtoken(email, password):
-    # options = Options()
+    options = Options()
     # options.add_argument("--headless")
     # driver = webdriver.Firefox(options=options)
-    driver = webdriver.Firefox()
+    options = Options()
+    
+    # Check if running in GitHub Actions using the default environment variable
+    if os.getenv('GITHUB_ACTIONS') == 'true':
+        options.add_argument("--headless")
+        # These two arguments prevent common container crashes
+        options.add_argument("--no-sandbox") 
+        options.add_argument("--disable-dev-shm-usage")
+    else:
+        # Optional: Comment this out if you want to see the browser locally
+        # options.add_argument("--headless") 
+        pass
+    driver = webdriver.Firefox(options=options)
     try:
         driver.get('https://www.lidl.cz/')
         time.sleep(2)
