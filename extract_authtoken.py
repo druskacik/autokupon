@@ -19,7 +19,7 @@ def extract_authtoken(email, password):
         options.add_argument("--no-sandbox") 
         options.add_argument("--disable-dev-shm-usage")
     else:
-        # options.add_argument("--headless") 
+        options.add_argument("--headless") 
         pass
     driver = webdriver.Firefox(options=options)
     try:
@@ -47,6 +47,9 @@ def extract_authtoken(email, password):
             #     if request.response:
             #         headers = request.response.headers
             if request.response:
+                print(request.url)
+                print(request.response.headers)
+                print('-'*50)
                 headers = request.response.headers
                 auth_token = extract_authtoken_from_headers(headers)
                 if auth_token:
