@@ -4,20 +4,21 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 import time
 
+def extract_authtoken_from_headers(headers):
+    auth_token = None
+    for key, value in headers.items():
+        if key.lower() == 'set-cookie' and value.startswith('authToken='):
+            auth_token = value.split(';')[0].split('=')[1]
+    return auth_token
+
 def extract_authtoken(email, password):
     options = Options()
-    # options.add_argument("--headless")
-    # driver = webdriver.Firefox(options=options)
-    options = Options()
     
-    # Check if running in GitHub Actions using the default environment variable
     if os.getenv('GITHUB_ACTIONS') == 'true':
         options.add_argument("--headless")
-        # These two arguments prevent common container crashes
         options.add_argument("--no-sandbox") 
         options.add_argument("--disable-dev-shm-usage")
     else:
-        # Optional: Comment this out if you want to see the browser locally
         # options.add_argument("--headless") 
         pass
     driver = webdriver.Firefox(options=options)
@@ -42,11 +43,16 @@ def extract_authtoken(email, password):
         headers = None
         auth_token = None
         for request in driver.requests:
-            if '/user-api/signin-oidc' in request.url:
-                if request.response:
-                    headers = request.response.headers
+            # if '/user-api/signin-oidc' in request.url:
+            #     if request.response:
+            #         headers = request.response.headers
+            if request.response:
+                headers = request.response.headers
+                auth_token = extract_authtoken_from_headers(headers)
+                if auth_token:
+                    break
 
-        print('headers', headers)
+        # print('headers', headers)
 
         if headers:
             for key, value in headers.items():
