@@ -29,4 +29,5 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PROXY_URL: ${{ secrets.PROXY_URL }}
         run: python main.py
