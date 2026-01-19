@@ -2,6 +2,8 @@ import os
 from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
 def extract_authtoken_from_headers(headers):
@@ -34,21 +36,31 @@ def extract_authtoken(email, password, proxy_url=None):
     driver = webdriver.Firefox(options=options, seleniumwire_options=seleniumwire_options)
     try:
         driver.get('https://www.lidl.cz/')
-        time.sleep(2)
+        wait = WebDriverWait(driver, 20)
 
-        driver.find_element(By.ID, 'onetrust-accept-btn-handler').click()
-        time.sleep(2)
+        # Wait for and accept cookies
+        cookie_btn = wait.until(EC.element_to_be_clickable((By.ID, 'onetrust-accept-btn-handler')))
+        cookie_btn.click()
 
-        driver.find_element(By.CSS_SELECTOR, '[data-ga-action="My Account"]').click()
-        time.sleep(5)
+        # Wait for cookie banner to disappear
+        wait.until(EC.invisibility_of_element_located((By.ID, 'onetrust-banner-sdk')))
+        wait.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'onetrust-pc-dark-filter')))
 
-        driver.find_element(By.ID, 'input-email').send_keys(email)
-        time.sleep(1)
-        driver.find_element(By.ID, 'Password').send_keys(password)
-        time.sleep(1)
+        # Wait for and click My Account
+        account_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-ga-action="My Account"]')))
+        account_btn.click()
 
-        driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
+        # Wait for login page
+        email_input = wait.until(EC.visibility_of_element_located((By.ID, 'input-email')))
+        email_input.send_keys(email)
 
+        password_input = wait.until(EC.visibility_of_element_located((By.ID, 'Password')))
+        password_input.send_keys(password)
+
+        submit_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[type="submit"]')))
+        submit_btn.click()
+
+        # Wait some time for the auth token to appear in network requests
         time.sleep(5)
         headers = None
         auth_token = None
