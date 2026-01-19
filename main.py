@@ -7,13 +7,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def create_session(auth_token):
+def create_session(auth_token, proxy_url=None):
     cookie_raw = f'authtoken={auth_token}'
     headers = {
         'Cookie': cookie_raw
     }
     session = requests.Session()
     session.headers.update(headers)
+    if proxy_url:
+        session.proxies = {
+            'http': proxy_url,
+            'https': proxy_url
+        }
     return session
 
 def get_promotions(session):
@@ -39,11 +44,12 @@ def main():
     try:
         email = os.getenv('EMAIL')
         password = os.getenv('PASSWORD')
+        proxy_url = os.getenv('PROXY_URL')
 
-        auth_token = extract_authtoken(email, password)
+        auth_token = extract_authtoken(email, password, proxy_url=proxy_url)
         print('Using auth token: ', auth_token)
 
-        session = create_session(auth_token)
+        session = create_session(auth_token, proxy_url=proxy_url)
         promotions = get_promotions(session)
         print('Total promotions:', len(promotions))
 

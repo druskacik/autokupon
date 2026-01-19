@@ -11,17 +11,27 @@ def extract_authtoken_from_headers(headers):
             auth_token = value.split(';')[0].split('=')[1]
     return auth_token
 
-def extract_authtoken(email, password):
+def extract_authtoken(email, password, proxy_url=None):
     options = Options()
     
+    seleniumwire_options = {}
+    if proxy_url:
+        seleniumwire_options = {
+            'proxy': {
+                'http': proxy_url,
+                'https': proxy_url,
+                'no_proxy': 'localhost,127.0.0.1'
+            }
+        }
+
     if os.getenv('GITHUB_ACTIONS') == 'true':
         options.add_argument("--headless")
         options.add_argument("--no-sandbox") 
         options.add_argument("--disable-dev-shm-usage")
     else:
-        options.add_argument("--headless") 
+        # options.add_argument("--headless") 
         pass
-    driver = webdriver.Firefox(options=options)
+    driver = webdriver.Firefox(options=options, seleniumwire_options=seleniumwire_options)
     try:
         driver.get('https://www.lidl.cz/')
         time.sleep(2)
@@ -30,7 +40,7 @@ def extract_authtoken(email, password):
         time.sleep(2)
 
         driver.find_element(By.CSS_SELECTOR, '[data-ga-action="My Account"]').click()
-        time.sleep(1)
+        time.sleep(5)
 
         driver.find_element(By.ID, 'input-email').send_keys(email)
         time.sleep(1)
@@ -47,9 +57,6 @@ def extract_authtoken(email, password):
             #     if request.response:
             #         headers = request.response.headers
             if request.response:
-                print(request.url)
-                print(request.response.headers)
-                print('-'*50)
                 headers = request.response.headers
                 auth_token = extract_authtoken_from_headers(headers)
                 if auth_token:
